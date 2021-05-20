@@ -1,0 +1,15 @@
+#sender-container {
+  background: white;
+  position: fixed;
+  min-width: 200px;
+  min-height: 50px;
+  top: 100px;
+  left: 400px;
+  z-index: 999;
+  box-shadow: 0 0 20px 10px rgba(120, 99, 68, 0.84);
+  padding: 20px;
+}
+button {
+  margin: 0 10px;
+  font-weight: bold;
+}
