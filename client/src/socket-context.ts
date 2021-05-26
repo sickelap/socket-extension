@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { createContext } from 'react';
 
 class Comm {
   listeners: { event: string; callback: (any) => void }[] = [];
@@ -12,15 +12,13 @@ class Comm {
   }
 
   emit(event: string, callback?: (any) => void) {
-    chrome.runtime.sendMessage({ event }, callback);
+    chrome.runtime.sendMessage(event, callback);
   }
 
   on(event: string, callback: (any) => void) {
-    if (!this.listeners.find((listener) => listener.event === event)) {
-      chrome.runtime.sendMessage({ event: 'listen', name: event }, callback);
-    }
+    chrome.runtime.sendMessage(`addListener:${event}`, callback);
     this.listeners.push({ event, callback });
   }
 }
 
-export const CommContext = React.createContext(new Comm());
+export const CommContext = createContext(new Comm());

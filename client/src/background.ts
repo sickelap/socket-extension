@@ -27,30 +27,30 @@ chrome.storage.onChanged.addListener((changes) => {
 /**
  * handle messages from content script or popup
  */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse = () => {}) => {
   if (!sender.url) {
     console.log('ignoring message from extension');
     return; // from extension
   }
-  switch (message.event) {
-    case 'listen':
-      socket.on(message.name, (payload) => {
-        sendMessageToActiveTab({ event: message.name, payload });
-        // sendResponse();
-      });
+  const [type, event] = message.split(':');
+  switch (type) {
+    case 'addListener':
+      socket.on(event, (payload) => sendMessageToTab(sender.tab.id, { event, payload }));
       break;
     case 'disable':
-      chrome.storage.local.set({ enabled: false });
+      const disabled = { enabled: false };
+      chrome.storage.local.set(disabled);
       socket.disconnect();
-      sendResponse();
+      sendResponse(disabled);
       break;
     case 'enable':
-      chrome.storage.local.set({ enabled: true });
+      const enabled = { enabled: true };
+      chrome.storage.local.set(enabled);
       socket.connect();
-      sendResponse();
+      sendResponse(enabled);
       break;
     case 'get-counter':
-      socket.emit('get-counter', sendResponse);
+      socket.emit('get-counter', (counter) => sendResponse({ event: 'counter', payload: counter }));
       break;
     case 'increment':
       socket.emit('increment', sendResponse);
@@ -61,10 +61,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-const sendMessageToActiveTab = (message: any, callback?: any) => {
+const sendMessageToActiveTab = (message: any) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs.length) {
-      chrome.tabs.sendMessage(tabs[0].id, message, callback);
+      sendMessageToTab(tabs[0].id, message);
     }
   });
 };
+
+const sendMessageToTab = (tab, message) => chrome.tabs.sendMessage(tab, message);

@@ -3,10 +3,10 @@ import './Popup.scss';
 
 export function Popup() {
   const [enabled, setEnabled] = useState(false);
-  const onClick = () => chrome.storage.local.set({enabled: !enabled}, () => setEnabled(!enabled));
+  const onClick = () => chrome.storage.local.set({ enabled: !enabled }, () => setEnabled(!enabled));
 
   useEffect(() => {
-    chrome.storage.local.get(['enabled'], ({enabled}) => setEnabled(enabled));
+    chrome.storage.local.get(['enabled'], ({ enabled }) => setEnabled(enabled));
   }, [enabled]);
 
   return (

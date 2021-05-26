@@ -7,7 +7,10 @@ export function Sender() {
   const comm = useContext(CommContext);
   const onClick = (event) => comm.emit(event);
 
-  comm.on('counter', setCounter);
+  comm.on('counter', c => {
+    console.log('received counter', c);
+    setCounter(c)
+  });
   comm.emit('get-counter');
 
   return (
